@@ -1,5 +1,4 @@
-# dynamic_nba_scheduling
-## Dynamic NBA Scheduling Using a Competitive Balance Approach
+# Dynamic NBA Scheduling Using a Competitive Balance Approach
 
 ### Value Proposition
 We are going to create a win probability model that will be leveraged to dynamically schedule games to optimize viewership and fan engagement. Currently, the NBA creates their schedule in advance, with preset deals with national television networks, as the non-ML approach. In very few cases, the league may “flex” games to change their scheduling, but this is done on an ad-hoc basis, with no clear defined metrics to change the scheduling. The status quo can create a problem during the season in which two teams who are unevenly matched may compete in primetime and nationally televised games, creating a gap in entertainment value. If we are able to capture the win probability of NBA games, we can shuffle the daily schedule to prioritize evenly matched games to be played in primetime and nationally televised scenarios. We will judge ourselves on the ability to drive viewership to primetime games, which we will not realize in this project.
@@ -16,7 +15,7 @@ We are going to create a win probability model that will be leveraged to dynamic
 
 ### System diagram
 
-
+![project_diagram.png]
 
 
 ### Summary of outside materials
@@ -24,7 +23,7 @@ We are going to create a win probability model that will be leveraged to dynamic
 
 |          | How it was created | Conditions of use |
 |----------------------------------------------|------------------------------------------------------------------------------|-------------------|
-|[nba_api](https://github.com/swar/nba_api)    | This is an API for nba.com, with the aim to make the NBA APIs easy to use.   | Since we are pitching this to be used by the NBA as an internal tool, we should be in compliance and have consent from the league. This is open source under the MIT License, we must not reproduce these materials for commercial purposes, and we should cite the NBA when using the statistics, as they own them. This is not permissible for gambling or fantasy sports. We will follow the NBA terms of use (https://www.nba.com/termsofuse#nba-statistics). |
+|[nba_api](https://github.com/swar/nba_api)    | This is an API for nba.com, with the aim to make the NBA APIs easy to use.   | Since we are pitching this to be used by the NBA as an internal tool, we should be in compliance and have consent from the league. This is open source under the MIT License, we must not reproduce these materials for commercial purposes, and we should cite the NBA when using the statistics, as they own them. This is not permissible for gambling or fantasy sports. We will follow the NBA terms of use [Terms of Use](https://www.nba.com/termsofuse#nba-statistics). |
 |[Pytorch](https://github.com/pytorch/pytorch) | This was created by the developers community                                 |    Open source, where generally, as long as we don’t generate or process inappropriate content, we are within the guidelines for use under the Linux Foundation.   |
 
 
