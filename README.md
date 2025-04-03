@@ -15,7 +15,7 @@ We are going to create a win probability model that will be leveraged to dynamic
 
 ### System diagram
 
-![project_diagram.png]
+![System diagram](project_diagram.png)
 
 
 ### Summary of outside materials
