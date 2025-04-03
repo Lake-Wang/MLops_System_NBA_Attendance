@@ -10,7 +10,7 @@ We are going to create a win probability model that will be leveraged to dynamic
 | All team members | Problem definition, setup, integration, continuous X (Units 1, 2, 3) |               TBD                  |
 | Will Calandra    | Model training (Units 4 + 5)                                         |               TBD                  |
 | Lake Wang        | Model serving and monitoring (Units 6 + 7)                           |               TBD                  |
-| Jason Moon       | Data pipeline (Unit 8)                                               |               TBD                  |
+| SungJoon Moon       | Data pipeline (Unit 8)                                               |               TBD                  |
 
 
 ### System diagram
