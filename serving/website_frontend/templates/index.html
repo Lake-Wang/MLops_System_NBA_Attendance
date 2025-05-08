@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NBA Game Input</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body class="p-4">
+    <div class="container">
+        <h2>Enter NBA Game Info</h2>
+        <form id="input-form" method="POST">
+            <div class="form-group">
+                <label for="game_date">Game Date</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="home_team">Home Team (e.g., LAL)</label>
+                <input type="text" id="home_team" name="home_team" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="away_team">Away Team (e.g., BOS)</label>
+                <input type="text" id="away_team" name="away_team" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success" id="btn-predict">Submit</button>
+        </form>
+
+        <div class="loader" style="display:none;"></div>
+        <span id="result"></span>
+    </div>
+
+    <script>
+        const validTeams = [
+            "ATL", "BOS", "BKN", "CHA", "CHI", "CLE", "DAL", "DEN", "DET",
+            "GSW", "HOU", "IND", "LAC", "LAL", "MEM", "MIA", "MIL", "MIN",
+            "NOP", "NYK", "OKC", "ORL", "PHI", "PHX", "POR", "SAC", "SAS",
+            "TOR", "UTA", "WAS"
+        ];
+
+        document.getElementById("input-form").addEventListener("submit", function (e) {
+            const home = document.getElementById("home_team").value.trim().toUpperCase();
+            const away = document.getElementById("away_team").value.trim().toUpperCase();
+
+            if (!validTeams.includes(home) || !validTeams.includes(away)) {
+                e.preventDefault();
+                alert("Please enter valid NBA team abbreviations for both home and away teams.");
+            }
+
+            if (home === away) {
+                e.preventDefault();
+                alert("Home and Away teams cannot be the same.");
+            }
+        });
+    </script>
+
+{% if prediction %}
+    <div class="mt-4">
+        <h4>Predicted Score Difference: {{ prediction.score_diff }}</h4>
+        <h4>Predicted Attendance Category: {{ prediction.attendance }}</h4>
+    </div>
+{% elif error %}
+    <div class="alert alert-danger mt-4">{{ error }}</div>
+{% endif %}
+</body>
+</html>
+
