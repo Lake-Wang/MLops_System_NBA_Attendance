@@ -182,7 +182,7 @@ def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y
     train_dir = os.path.join(base_dir, subdirs[0])
     test_dir = os.path.join(base_dir, subdirs[1])
 
-    model_1_df.to_csv(os.path.join(train_dir, 'full_df.csv'), index=False)
+    model_1_df.to_csv(os.path.join(train_dir, 'full_stats.csv'), index=False)
     Y_train_model1.to_csv(os.path.join(train_dir, 'Y_train_model1.csv'), index=False)
     Y_test_model1.to_csv(os.path.join(test_dir, 'Y_test_model1.csv'), index=False)
     
@@ -191,7 +191,8 @@ def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y
 
     Y_train_model2.to_csv(os.path.join(train_dir, 'Y_train_model2.csv'), index=False)
     Y_test_model2.to_csv(os.path.join(test_dir, 'Y_test_model2.csv'), index=False)
-
+    
+    X_model2.to_csv(os.path.join(train_dir, 'full_attendance.csv'), index=False)
     X_train_model2.to_csv(os.path.join(train_dir, 'X_train_model2.csv'), index=False)
     X_test_model2.to_csv(os.path.join(test_dir, 'X_test_model2.csv'), index=False)
 
