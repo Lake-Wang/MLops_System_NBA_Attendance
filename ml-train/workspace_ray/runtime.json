@@ -1,0 +1,6 @@
+{
+    "pip": "requirements.txt",
+    "env_vars": {
+        "NBA_DATA_DIR": "/mnt/nba_data"
+    }
+}

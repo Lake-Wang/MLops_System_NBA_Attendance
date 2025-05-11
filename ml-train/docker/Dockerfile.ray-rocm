@@ -11,11 +11,6 @@ RUN wget https://repo.radeon.com/amdgpu-install/$ROCM_VERSION/ubuntu/jammy/amdgp
 
 RUN amdgpu-install --usecase=rocm -y && rm *.deb  
 
-# Install dependencies for project
-RUN pip install pandas numpy && \
-    fix-permissions "${CONDA_DIR}" && \
-    fix-permissions "/home/${NB_USER}"
-
 # Install PyTorch with ROCm compatibility, and Lightning
 RUN pip install --pre --no-cache-dir  --index-url https://download.pytorch.org/whl/nightly/rocm6.3/ \
     'torch'
