@@ -181,7 +181,6 @@ def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y
     train_dir = os.path.join(base_dir, subdirs[0])
     test_dir = os.path.join(base_dir, subdirs[1])
 
-    model_1_df.to_csv(os.path.join(train_dir, 'full_df.csv'), index=False)
     Y_train_model1.to_csv(os.path.join(train_dir, 'Y_train_model1.csv'), index=False)
     Y_test_model1.to_csv(os.path.join(test_dir, 'Y_test_model1.csv'), index=False)
     
@@ -197,7 +196,7 @@ def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y
     
 
 if __name__ == "__main__":
-    base_dir = "/data/nba_data/transformed"
+    base_dir = "/data/nba_data/online"
 
     subdirs = ["train", "test"]
 

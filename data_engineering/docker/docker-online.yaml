@@ -1,0 +1,54 @@
+name: team16-etl
+
+volumes:
+  nbamodel:
+
+services:
+  generate-data:
+    container_name: etl_generate_data
+    image: python:3.11
+    volumes:
+      - nbamodel:/data
+      -  /home/cc/dynamic_nba_scheduling/data_engineering/generate_online.py:/data/nba_data/generate_online.py
+    working_dir: /data/nba_data
+    command:
+      - bash
+      - -c
+      - |
+        set -e
+        rm -rf online
+        mkdir -p online
+        
+        pip install pandas numpy
+
+        python3 generate_online.py
+
+        echo "Listing contents of /data/nba_data after transform stage:"
+        ls -l /data/nba_data/online
+
+  load-data:
+    container_name: etl_load_data
+    image: rclone/rclone:latest
+    volumes:
+      - nbamodel:/data
+      - ~/.config/rclone/rclone.conf:/root/.config/rclone/rclone.conf:ro
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        if [ -z "$RCLONE_CONTAINER" ]; then
+          echo "ERROR: RCLONE_CONTAINER is not set"
+          exit 1
+        fi
+        echo "Cleaning up existing contents of container..."
+        rclone delete chi_tacc:$RCLONE_CONTAINER --rmdirs || true
+
+        rclone copy /data/nba_data/transformed chi_tacc:$RCLONE_CONTAINER \
+        --progress \
+        --transfers=32 \
+        --checkers=16 \
+        --multi-thread-streams=4 \
+        --fast-list
+
+        echo "Listing directories in container after load stage:"
+        rclone lsd chi_tacc:$RCLONE_CONTAINER
