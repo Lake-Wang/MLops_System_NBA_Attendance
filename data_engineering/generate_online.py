@@ -177,9 +177,9 @@ def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y
     X_model2 = X_model2.drop('ATTENDANCE', axis=1)
 
     X_train_model2 = X_model2.loc[(X_model2['seasonYear'] == '2022-23') | (X_model2['seasonYear'] == '2023-24')]
-    X_train_model2 = X_train_model2.select_dtypes(include=['float', 'int'])
+    X_train_model2 = X_train_model2[['gameId'] + X_train_model2.select_dtypes(include='float').columns.tolist()]
     X_test_model2 = X_model2.loc[X_model2['seasonYear'] == '2024-25']
-    X_test_model2 = X_test_model2.select_dtypes(include=['float', 'int'])
+    X_test_model2 = X_test_model2[['gameId'] + X_test_model2.select_dtypes(include='float').columns.tolist()]
 
     train_dir = os.path.join(base_dir, subdirs[0])
     test_dir = os.path.join(base_dir, subdirs[1])
