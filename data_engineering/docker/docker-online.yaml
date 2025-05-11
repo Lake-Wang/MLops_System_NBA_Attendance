@@ -40,10 +40,8 @@ services:
           echo "ERROR: RCLONE_CONTAINER is not set"
           exit 1
         fi
-        echo "Cleaning up existing contents of container..."
-        rclone delete chi_tacc:$RCLONE_CONTAINER --rmdirs || true
 
-        rclone copy /data/nba_data/transformed chi_tacc:$RCLONE_CONTAINER \
+        rclone copy /data/nba_data/online chi_tacc:$RCLONE_CONTAINER \
         --progress \
         --transfers=32 \
         --checkers=16 \

@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import glob
 
-def get_dfs(seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir):
+def get_dfs_synthetic(seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir):
     combined_stats = {stat_dir: [] for stat_dir in stat_dirs}
     attendance_all = []
     schedule_all = []
@@ -40,10 +40,26 @@ def get_dfs(seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir):
 
     final_stats = {os.path.basename(stat_dir.rstrip('/\\')): pd.concat(dfs, ignore_index=True) for stat_dir, dfs in combined_stats.items()}
 
+    numerical_cols = [
+        'fieldGoalsMade', 'fieldGoalsAttempted', 'fieldGoalsPercentage', 'threePointersMade', 'threePointersAttempted',
+        'threePointersPercentage', 'freeThrowsMade', 'freeThrowsAttempted', 'freeThrowsPercentage', 'reboundsOffensive', 
+        'reboundsDefensive', 'reboundsTotal', 'assists', 'steals', 'blocks', 'turnovers', 'foulsPersonal', 'points', 
+        'plusMinusPoints', 'estimatedOffensiveRating', 'offensiveRating', 'estimatedDefensiveRating', 'defensiveRating',
+        'estimatedNetRating', 'netRating', 'assistPercentage', 'assistToTurnover', 'assistRatio', 'offensiveReboundPercentage', 
+        'defensiveReboundPercentage', 'reboundPercentage', 'estimatedTeamTurnoverPercentage', 'turnoverRatio',
+        'effectiveFieldGoalPercentage', 'trueShootingPercentage', 'usagePercentage', 'estimatedUsagePercentage', 'estimatedPace', 'pace',
+        'pacePer40', 'possessions', 'PIE', 'freeThrowAttemptRate', 'teamTurnoverPercentage', 'oppEffectiveFieldGoalPercentage',
+        'oppFreeThrowAttemptRate', 'oppTeamTurnoverPercentage', 'oppOffensiveReboundPercentage'
+    ]    
+    final_stats[numerical_cols] += np.random.normal(loc=0.0, scale=1, size=final_stats[numerical_cols].shape)
+    final_stats['gameId'] = final_stats['gameId'].apply(lambda x: x[:4] + str(int(x[4]) + 3) + x[5:])
+
     final_attendance = pd.concat(attendance_all, ignore_index=True)
     final_schedule = pd.concat(schedule_all, ignore_index=True)
     final_weather = pd.concat(weather_all, ignore_index=True)
-
+    
+    float_cols = final_weather.select_dtypes(include='float').columns
+    final_weather[float_cols] += np.random.normal(loc=0.0, scale=1, size=final_weather[float_cols].shape)
     return final_stats, final_attendance, final_schedule, final_weather
 
 def feature_engineer_data(full_stats_df):
@@ -85,8 +101,6 @@ def feature_engineer_data(full_stats_df):
 
     df_sorted['games_played'] = df_sorted.groupby(['teamId', 'seasonYear']).cumcount()
     for col in numerical_cols:
-        n_samples = df_sorted[col].shape[0]
-        df_sorted[col] = df_sorted[col] + np.random.normal(loc=0, scale=1, size=n_samples)
         df_sorted[f"{col}_season_avg"] = df_sorted.groupby(['teamId', 'seasonYear'])[col].transform(lambda x: x.expanding().mean().shift(1))
         df_sorted[f"{col}_past_5_avg"] = df_sorted.groupby(['teamId', 'seasonYear'])[col].transform(lambda x: x.rolling(window=5, min_periods=1).mean().shift(1))
 
@@ -102,7 +116,7 @@ def feature_engineer_data(full_stats_df):
 
 def get_final_dfs(seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir):
     
-    final_stats, attendance_df, schedule_df, weather_df = get_dfs(seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir)
+    final_stats, attendance_df, schedule_df, weather_df = get_dfs_synthetic(seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir)
     
     traditional_df = final_stats['boxscoretraditional']
     advanced_df = final_stats['boxscoreadvanced']
@@ -148,60 +162,36 @@ def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y
 
     full_df = model_1_df.merge(model_2_df, on=['gameId', 'seasonYear', 'teamTricode', 'opp_teamTricode'], how='inner')
     full_df = full_df.dropna()
+    full_df['gameId'] = full_df['gameId'] + 300000
+    full_df['gameDate'] = pd.to_datetime(full_df['gameDate'])
+    full_df['gameDate'] += pd.DateOffset(years=3)
 
-    model1_data = full_df[model_1_df.columns]
+    model1_data = full_df[model_1_df.columns.to_list()+['gameDate']]
     model2_data = full_df[model_2_df.columns]
 
-    Y_model1 = model1_data[['plusMinusPoints', 'seasonYear']]
-    Y_train_model1 = Y_model1.loc[(Y_model1['seasonYear'] == '2022-23') | (Y_model1['seasonYear'] == '2023-24')]
-    Y_train_model1 = Y_train_model1.drop('seasonYear', axis=1)
-    Y_test_model1 = Y_model1.loc[Y_model1['seasonYear'] == '2024-25']
-    Y_test_model1 = Y_test_model1.drop('seasonYear', axis=1)
-
+    Y_model1 = model1_data[['plusMinusPoints']]
+    
     X_model1 = model1_data[[col for col in model_1_df.columns if 'avg' in col]]
-    X_model1 = pd.concat([model1_data['gameId'], model1_data['seasonYear'], X_model1], axis=1)
+    X_model1 = pd.concat([model1_data[['gameId', 'gameDate']], X_model1], axis=1)
 
-    X_train_model1 = X_model1.loc[(X_model1['seasonYear'] == '2022-23') | (X_model1['seasonYear'] == '2023-24')]
-    X_train_model1 = X_train_model1.drop('seasonYear', axis=1)
-    X_test_model1 = X_model1.loc[X_model1['seasonYear'] == '2024-25']
-    X_test_model1 = X_test_model1.drop('seasonYear', axis=1)
-
-    Y_model2 = model2_data[['ATTENDANCE', 'seasonYear']]
-    Y_train_model2 = Y_model2.loc[(Y_model2['seasonYear'] == '2022-23') | (Y_model2['seasonYear'] == '2023-24')]
-    Y_train_model2 = Y_train_model2.drop('seasonYear', axis=1)
-    Y_test_model2 = Y_model2.loc[Y_model2['seasonYear'] == '2024-25']
-    Y_test_model2 = Y_test_model2.drop('seasonYear', axis=1)
+    Y_model2 = model2_data[['ATTENDANCE']]
 
     home_dummies = pd.get_dummies(model2_data['teamTricode'], prefix='team', drop_first=True).astype(float)
     X_model2 = pd.concat([model2_data, home_dummies], axis=1)
     X_model2 = X_model2.drop('ATTENDANCE', axis=1)
 
-    X_train_model2 = X_model2.loc[(X_model2['seasonYear'] == '2022-23') | (X_model2['seasonYear'] == '2023-24')]
-    X_train_model2 = X_train_model2[['gameId'] + X_train_model2.select_dtypes(include='float').columns.tolist()]
-    X_test_model2 = X_model2.loc[X_model2['seasonYear'] == '2024-25']
-    X_test_model2 = X_test_model2[['gameId'] + X_test_model2.select_dtypes(include='float').columns.tolist()]
-
     train_dir = os.path.join(base_dir, subdirs[0])
-    test_dir = os.path.join(base_dir, subdirs[1])
 
-    model1_data.to_csv(os.path.join(train_dir, 'full_stats.csv'), index=False)
-    Y_train_model1.to_csv(os.path.join(train_dir, 'Y_train_model1.csv'), index=False)
-    Y_test_model1.to_csv(os.path.join(test_dir, 'Y_test_model1.csv'), index=False)
+    Y_model1.to_csv(os.path.join(train_dir, 'Y_online_model1.csv'), index=False)
+    X_model1.to_csv(os.path.join(train_dir, 'X_online_model1.csv'), index=False)
     
-    X_train_model1.to_csv(os.path.join(train_dir, 'X_train_model1.csv'), index=False)
-    X_test_model1.to_csv(os.path.join(test_dir, 'X_test_model1.csv'), index=False)
-
-    Y_train_model2.to_csv(os.path.join(train_dir, 'Y_train_model2.csv'), index=False)
-    Y_test_model2.to_csv(os.path.join(test_dir, 'Y_test_model2.csv'), index=False)
-    
-    X_model2.to_csv(os.path.join(train_dir, 'full_attendance.csv'), index=False)
-    X_train_model2.to_csv(os.path.join(train_dir, 'X_train_model2.csv'), index=False)
-    X_test_model2.to_csv(os.path.join(test_dir, 'X_test_model2.csv'), index=False)
+    Y_model2.to_csv(os.path.join(train_dir, 'Y_online_model2.csv'), index=False)
+    X_model2.to_csv(os.path.join(train_dir, 'X_online_model2.csv'), index=False)
 
 if __name__ == "__main__":
     base_dir = "/data/nba_data/online"
 
-    subdirs = ["train", "test"]
+    subdirs = ["online"]
 
     season_dirs = ['season2223', 'season2324', 'season2425']
     stat_dirs = ['./boxscoretraditional', './boxscoreadvanced', './boxscorefourfactor']
