@@ -54,7 +54,7 @@ services:
 
         pip install pandas numpy
 
-        python3 feature_engineer.py
+        python3 feature_engineering.py
 
         echo "Listing contents of /data/nba_data after transform stage:"
         ls -l /data/nba_data/transformed
