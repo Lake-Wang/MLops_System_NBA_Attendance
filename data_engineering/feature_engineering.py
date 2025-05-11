@@ -144,6 +144,7 @@ def get_final_dfs(seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir):
 def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir):
     model_1_df, model_2_df = get_final_dfs(seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir)
 
+    model_1_df = model_1_df.dropna()
     Y_model1 = model_1_df[['plusMinusPoints', 'seasonYear']]
     Y_train_model1 = Y_model1.loc[(Y_model1['seasonYear'] == '2022-23') | (Y_model1['seasonYear'] == '2023-24')]
     Y_train_model1 = Y_train_model1.drop('seasonYear', axis=1)
