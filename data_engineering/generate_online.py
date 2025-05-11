@@ -40,20 +40,6 @@ def get_dfs_synthetic(seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir):
 
     final_stats = {os.path.basename(stat_dir.rstrip('/\\')): pd.concat(dfs, ignore_index=True) for stat_dir, dfs in combined_stats.items()}
 
-    numerical_cols = [
-        'fieldGoalsMade', 'fieldGoalsAttempted', 'fieldGoalsPercentage', 'threePointersMade', 'threePointersAttempted',
-        'threePointersPercentage', 'freeThrowsMade', 'freeThrowsAttempted', 'freeThrowsPercentage', 'reboundsOffensive', 
-        'reboundsDefensive', 'reboundsTotal', 'assists', 'steals', 'blocks', 'turnovers', 'foulsPersonal', 'points', 
-        'plusMinusPoints', 'estimatedOffensiveRating', 'offensiveRating', 'estimatedDefensiveRating', 'defensiveRating',
-        'estimatedNetRating', 'netRating', 'assistPercentage', 'assistToTurnover', 'assistRatio', 'offensiveReboundPercentage', 
-        'defensiveReboundPercentage', 'reboundPercentage', 'estimatedTeamTurnoverPercentage', 'turnoverRatio',
-        'effectiveFieldGoalPercentage', 'trueShootingPercentage', 'usagePercentage', 'estimatedUsagePercentage', 'estimatedPace', 'pace',
-        'pacePer40', 'possessions', 'PIE', 'freeThrowAttemptRate', 'teamTurnoverPercentage', 'oppEffectiveFieldGoalPercentage',
-        'oppFreeThrowAttemptRate', 'oppTeamTurnoverPercentage', 'oppOffensiveReboundPercentage'
-    ]    
-    final_stats[numerical_cols] += np.random.normal(loc=0.0, scale=1, size=final_stats[numerical_cols].shape)
-    final_stats['gameId'] = final_stats['gameId'].apply(lambda x: x[:4] + str(int(x[4]) + 3) + x[5:])
-
     final_attendance = pd.concat(attendance_all, ignore_index=True)
     final_schedule = pd.concat(schedule_all, ignore_index=True)
     final_weather = pd.concat(weather_all, ignore_index=True)
@@ -101,6 +87,7 @@ def feature_engineer_data(full_stats_df):
 
     df_sorted['games_played'] = df_sorted.groupby(['teamId', 'seasonYear']).cumcount()
     for col in numerical_cols:
+        df_sorted[col] += np.random.normal(loc=0.0, scale=1, size=df_sorted[col].shape)
         df_sorted[f"{col}_season_avg"] = df_sorted.groupby(['teamId', 'seasonYear'])[col].transform(lambda x: x.expanding().mean().shift(1))
         df_sorted[f"{col}_past_5_avg"] = df_sorted.groupby(['teamId', 'seasonYear'])[col].transform(lambda x: x.rolling(window=5, min_periods=1).mean().shift(1))
 
