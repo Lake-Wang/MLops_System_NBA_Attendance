@@ -18,6 +18,9 @@ services:
         set -e
         rm -rf online
         mkdir -p online
+        cd online
+        mkdir -p online
+        cd ..
         
         pip install pandas numpy
 

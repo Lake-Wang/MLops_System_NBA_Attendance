@@ -180,7 +180,7 @@ def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y
     X_model2 = pd.concat([model2_data, home_dummies], axis=1)
     X_model2 = X_model2.drop('ATTENDANCE', axis=1)
 
-    train_dir = os.path.join(base_dir, subdirs[0])
+    train_dir = os.path.join(base_dir, subdirs)
 
     Y_model1.to_csv(os.path.join(train_dir, 'Y_online_model1.csv'), index=False)
     X_model1.to_csv(os.path.join(train_dir, 'X_online_model1.csv'), index=False)
@@ -191,7 +191,7 @@ def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y
 if __name__ == "__main__":
     base_dir = "/data/nba_data/online"
 
-    subdirs = ["online"]
+    subdirs = "online"
 
     season_dirs = ['season2223', 'season2324', 'season2425']
     stat_dirs = ['./boxscoretraditional', './boxscoreadvanced', './boxscorefourfactor']
