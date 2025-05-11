@@ -196,8 +196,6 @@ def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y
     X_train_model2.to_csv(os.path.join(train_dir, 'X_train_model2.csv'), index=False)
     X_test_model2.to_csv(os.path.join(test_dir, 'X_test_model2.csv'), index=False)
 
-    
-
 if __name__ == "__main__":
     base_dir = "/data/nba_data/transformed"
 

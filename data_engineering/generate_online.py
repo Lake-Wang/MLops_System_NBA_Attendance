@@ -85,7 +85,8 @@ def feature_engineer_data(full_stats_df):
 
     df_sorted['games_played'] = df_sorted.groupby(['teamId', 'seasonYear']).cumcount()
     for col in numerical_cols:
-        df_sorted[col] = df_sorted[col] + np.ra
+        n_samples = df_sorted[col].shape[0]
+        df_sorted[col] = df_sorted[col] + np.random.normal(loc=0, scale=1, size=n_samples)
         df_sorted[f"{col}_season_avg"] = df_sorted.groupby(['teamId', 'seasonYear'])[col].transform(lambda x: x.expanding().mean().shift(1))
         df_sorted[f"{col}_past_5_avg"] = df_sorted.groupby(['teamId', 'seasonYear'])[col].transform(lambda x: x.rolling(window=5, min_periods=1).mean().shift(1))
 
@@ -145,43 +146,45 @@ def get_final_dfs(seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir):
 def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir):
     model_1_df, model_2_df = get_final_dfs(seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir)
 
-    Y_model1 = model_1_df[['plusMinusPoints', 'seasonYear']]
+    full_df = model_1_df.merge(model_2_df, on=['gameId', 'seasonYear', 'teamTricode', 'opp_teamTricode'], how='inner')
+    full_df = full_df.dropna()
+
+    model1_data = full_df[model_1_df.columns]
+    model2_data = full_df[model_2_df.columns]
+
+    Y_model1 = model1_data[['plusMinusPoints', 'seasonYear']]
     Y_train_model1 = Y_model1.loc[(Y_model1['seasonYear'] == '2022-23') | (Y_model1['seasonYear'] == '2023-24')]
     Y_train_model1 = Y_train_model1.drop('seasonYear', axis=1)
-
     Y_test_model1 = Y_model1.loc[Y_model1['seasonYear'] == '2024-25']
     Y_test_model1 = Y_test_model1.drop('seasonYear', axis=1)
 
-    X_model1 = model_1_df[[col for col in model_1_df.columns if 'avg' in col]]
-    X_model1 = pd.concat([X_model1, model_1_df['seasonYear']], axis=1)
+    X_model1 = model1_data[[col for col in model_1_df.columns if 'avg' in col]]
+    X_model1 = pd.concat([model1_data['gameId'], model1_data['seasonYear'], X_model1], axis=1)
 
     X_train_model1 = X_model1.loc[(X_model1['seasonYear'] == '2022-23') | (X_model1['seasonYear'] == '2023-24')]
     X_train_model1 = X_train_model1.drop('seasonYear', axis=1)
-
     X_test_model1 = X_model1.loc[X_model1['seasonYear'] == '2024-25']
     X_test_model1 = X_test_model1.drop('seasonYear', axis=1)
 
-    model_2_df = model_2_df.dropna()
-    Y_model2 = model_2_df[['ATTENDANCE', 'seasonYear']]
+    Y_model2 = model2_data[['ATTENDANCE', 'seasonYear']]
     Y_train_model2 = Y_model2.loc[(Y_model2['seasonYear'] == '2022-23') | (Y_model2['seasonYear'] == '2023-24')]
     Y_train_model2 = Y_train_model2.drop('seasonYear', axis=1)
-
     Y_test_model2 = Y_model2.loc[Y_model2['seasonYear'] == '2024-25']
     Y_test_model2 = Y_test_model2.drop('seasonYear', axis=1)
 
-    home_dummies = pd.get_dummies(model_2_df['teamTricode'], prefix='team', drop_first=True).astype(float)
-    X_model2 = pd.concat([model_2_df, home_dummies], axis=1)
+    home_dummies = pd.get_dummies(model2_data['teamTricode'], prefix='team', drop_first=True).astype(float)
+    X_model2 = pd.concat([model2_data, home_dummies], axis=1)
     X_model2 = X_model2.drop('ATTENDANCE', axis=1)
 
     X_train_model2 = X_model2.loc[(X_model2['seasonYear'] == '2022-23') | (X_model2['seasonYear'] == '2023-24')]
-    X_train_model2 = X_train_model2.select_dtypes(include=['float'])
-
+    X_train_model2 = X_train_model2.select_dtypes(include=['float', 'int'])
     X_test_model2 = X_model2.loc[X_model2['seasonYear'] == '2024-25']
-    X_test_model2 = X_test_model2.select_dtypes(include=['float'])
+    X_test_model2 = X_test_model2.select_dtypes(include=['float', 'int'])
 
     train_dir = os.path.join(base_dir, subdirs[0])
     test_dir = os.path.join(base_dir, subdirs[1])
 
+    model1_data.to_csv(os.path.join(train_dir, 'full_stats.csv'), index=False)
     Y_train_model1.to_csv(os.path.join(train_dir, 'Y_train_model1.csv'), index=False)
     Y_test_model1.to_csv(os.path.join(test_dir, 'Y_test_model1.csv'), index=False)
     
@@ -190,11 +193,10 @@ def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y
 
     Y_train_model2.to_csv(os.path.join(train_dir, 'Y_train_model2.csv'), index=False)
     Y_test_model2.to_csv(os.path.join(test_dir, 'Y_test_model2.csv'), index=False)
-
+    
+    X_model2.to_csv(os.path.join(train_dir, 'full_attendance.csv'), index=False)
     X_train_model2.to_csv(os.path.join(train_dir, 'X_train_model2.csv'), index=False)
     X_test_model2.to_csv(os.path.join(test_dir, 'X_test_model2.csv'), index=False)
-
-    
 
 if __name__ == "__main__":
     base_dir = "/data/nba_data/online"
