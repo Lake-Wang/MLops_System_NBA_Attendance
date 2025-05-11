@@ -25,7 +25,7 @@ config = {
     "batch_size": 128,
     "lr": 1e-4,
     "hidden_layer_size": [1024, 512, 256, 128],
-    "dropout": 0.15
+    "dropout": 0.2
 }
 
 torch.manual_seed(42)
@@ -35,12 +35,17 @@ result_df = pd.read_csv('model1_out.csv')
 
 base_data_dir = os.getenv("NBA_DATA_DIR", "nba_data")
 
+
 X_train = pd.read_csv(os.path.join(base_data_dir, 'train/X_train_model2.csv'))
+X_train = X_train.merge(result_df, on='gameId', how='inner')
+X_train = X_train.drop('gameId', axis=1)
 X_test = pd.read_csv(os.path.join(base_data_dir, 'test/X_test_model2.csv'))
+X_test = X_test.merge(result_df, on='gameId', how='inner')
+X_test = X_test.drop('gameId', axis=1)
 Y_train = pd.read_csv(os.path.join(base_data_dir, 'train/Y_train_model2.csv'))
 Y_test = pd.read_csv(os.path.join(base_data_dir, 'test/Y_test_model2.csv'))
 full_df = pd.read_csv(os.path.join(base_data_dir, 'train/full_attendance.csv'))
-print(len(X_train), len(X_test), len(Y_train), len(Y_test), len(result_df))
+full_df = full_df.merge(result_df, on='gameId', how='inner')
 
 X_save_cols = X_train.columns
 
@@ -50,7 +55,6 @@ X_train = torch.tensor(X_train.values, dtype=torch.float32)
 X_test = torch.tensor(X_test.values, dtype=torch.float32)
 Y_train = torch.tensor(Y_train.values, dtype=torch.float32)
 Y_test = torch.tensor(Y_test.values, dtype=torch.float32)
-print(X_train.shape, X_test.shape, Y_train.shape, Y_test.shape)
 
 train_data = TensorDataset(X_train, Y_train)
 test_data = TensorDataset(X_test, Y_test)
@@ -84,7 +88,7 @@ try:
 except:
     pass
 finally:
-    mlflow.start_run(run_name="Model2_wide_incr_batch", log_system_metrics=True) # Start MLFlow run
+    mlflow.start_run(run_name="Model2_wide_dropout", log_system_metrics=True) # Start MLFlow run
     # automatically log GPU and CPU metrics
     # Note: to automatically log AMD GPU metrics, you need to have installed pyrsmi
     # Note: to automatically log NVIDIA GPU metrics, you need to have installed pynvml
