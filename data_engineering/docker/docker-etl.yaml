@@ -1,0 +1,87 @@
+name: team16-etl
+
+volumes:
+  nbamodel:
+
+services:
+  extract-data:
+    container_name: etl_extract_data
+    image: python:3.11
+    user: root
+    volumes:
+      - nbamodel:/data
+    working_dir: /data
+    command:
+      - bash
+      - -c
+      - |
+        set -e
+
+        echo "Resetting dataset directory..."
+        rm -rf nba_data
+        mkdir -p nba_data
+        cd nba_data
+
+        echo "Downloading dataset zip..."
+        curl -L "https://drive.usercontent.google.com/download?id=1FZpRLmwvtwlKOXCxvzd9ZtiJXeHsYpIW&confirm=xxx" \
+          -o raw_data.zip
+
+        echo "Unzipping dataset..."
+        unzip -q raw_data.zip
+        rm -f raw_data.zip
+        
+        echo "Listing contents of /data after extract stage:"
+        ls -l /data
+
+  transform-data:
+    container_name: etl_transform_data
+    image: python:3.11
+    volumes:
+      - nbamodel:/data
+      -  /home/cc/dynamic_nba_scheduling/data_engineering/feature_engineering.py:/data/nba_data/feature_engineering.py
+    working_dir: /data/nba_data
+    command:
+      - bash
+      - -c
+      - |
+        set -e
+        rm -rf transformed
+        mkdir -p transformed
+        cd transformed
+        mkdir -p train
+        mkdir -p test 
+        cd ..
+
+        pip install pandas numpy
+
+        python3 feature_engineer.py
+
+        echo "Listing contents of /data/nba_data after transform stage:"
+        ls -l /data/nba_data/transformed
+
+  load-data:
+    container_name: etl_load_data
+    image: rclone/rclone:latest
+    volumes:
+      - nbamodel:/data
+      - ~/.config/rclone/rclone.conf:/root/.config/rclone/rclone.conf:ro
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        if [ -z "$RCLONE_CONTAINER" ]; then
+          echo "ERROR: RCLONE_CONTAINER is not set"
+          exit 1
+        fi
+        echo "Cleaning up existing contents of container..."
+        rclone delete chi_tacc:$RCLONE_CONTAINER --rmdirs || true
+
+        rclone copy /data/nba_data/transform chi_tacc:$RCLONE_CONTAINER \
+        --progress \
+        --transfers=32 \
+        --checkers=16 \
+        --multi-thread-streams=4 \
+        --fast-list
+
+        echo "Listing directories in container after load stage:"
+        rclone lsd chi_tacc:$RCLONE_CONTAINER
