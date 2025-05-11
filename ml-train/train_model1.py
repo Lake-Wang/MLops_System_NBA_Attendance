@@ -22,9 +22,9 @@ mlflow.set_experiment("model1")
 config = {
     "total_epochs": 500,
     "patience": 50,
-    "batch_size": 16,
+    "batch_size": 64,
     "lr": 1e-4,
-    "hidden_layer_size": [256, 128, 64, 32],
+    "hidden_layer_size": [1024, 512, 256, 128],
     "dropout": 0.15
 }
 
@@ -34,9 +34,10 @@ torch.manual_seed(42)
 base_data_dir = os.getenv("NBA_DATA_DIR", "nba_data")
 
 X_train = pd.read_csv(os.path.join(base_data_dir, 'train/X_train_model1.csv'))
-X_test = pd.read_csv(os.path.join(base_data_dir, 'train/X_test_model1.csv'))
+X_test = pd.read_csv(os.path.join(base_data_dir, 'test/X_test_model1.csv'))
 Y_train = pd.read_csv(os.path.join(base_data_dir, 'train/Y_train_model1.csv'))
-Y_test = pd.read_csv(os.path.join(base_data_dir, 'train/Y_test_model1.csv'))
+Y_test = pd.read_csv(os.path.join(base_data_dir, 'test/Y_test_model1.csv'))
+full_df = pd.read_csv(os.path.join(base_data_dir, 'train/full_stats.csv'))
 
 # Save for later
 X_save_cols = X_train.columns
@@ -78,7 +79,7 @@ try:
 except:
     pass
 finally:
-    mlflow.start_run(run_name="Model1", log_system_metrics=True) # Start MLFlow run
+    mlflow.start_run(run_name="Model1_inc_batch_size_wide", log_system_metrics=True) # Start MLFlow run
     # automatically log GPU and CPU metrics
     # Note: to automatically log AMD GPU metrics, you need to have installed pyrsmi
     # Note: to automatically log NVIDIA GPU metrics, you need to have installed pynvml
@@ -122,7 +123,7 @@ for epoch in range(config["total_epochs"]):
         torch.save(model, "point_diff.pth") # Revised from state_dict()
         print("   Test loss improved. Model saved.")
         # Save the best model as an artifact in MLFlow
-        mlflow.pytorch.log_model(model, "best_model1")
+        mlflow.log_artifact("point_diff.pth")
     else:
         patience_counter += 1
         print(f"   No improvement in test loss. Patience counter: {patience_counter}")
@@ -147,8 +148,8 @@ mlflow.end_run()
 
 # Extract predictions for merger with weather for attendance
 model.eval()
-extract_df = df[X_save_cols].values
-game_ids = df['gameId'].values
+extract_df = full_df[X_save_cols].values
+game_ids = full_df['gameId'].values
 
 # Prepare for model
 X_tensor = torch.FloatTensor(extract_df).to(device)
