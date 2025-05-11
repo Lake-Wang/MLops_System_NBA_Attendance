@@ -144,7 +144,7 @@ def get_final_dfs(seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir):
 def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir):
     model_1_df, model_2_df = get_final_dfs(seasons_dir, stat_dirs, schedule_dir, weather_dir, y_dir)
 
-    full_df = model_1_df.merge(model_2_df, on=['gameId', 'gameDate', 'teamTricode'], how='inner')
+    full_df = model_1_df.merge(model_2_df, on=['gameId', 'teamTricode', 'opp_teamTricode'], how='inner')
     full_df = full_df.dropna()
 
     model1_data = full_df[model_1_df.columns]
