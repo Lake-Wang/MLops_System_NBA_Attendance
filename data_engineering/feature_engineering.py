@@ -160,21 +160,23 @@ def main(base_dir, subdirs, seasons_dir, stat_dirs, schedule_dir, weather_dir, y
     X_test_model1 = X_model1.loc[X_model1['seasonYear'] == '2024-25']
     X_test_model1 = X_test_model1.drop('seasonYear', axis=1)
 
-    Y_model2 = model_2_df[['plusMinusPoints', 'seasonYear']]
+    model_2_df = model_2_df.dropna()
+    Y_model2 = model_2_df[['ATTENDANCE', 'seasonYear']]
     Y_train_model2 = Y_model2.loc[(Y_model2['seasonYear'] == '2022-23') | (Y_model2['seasonYear'] == '2023-24')]
     Y_train_model2 = Y_train_model2.drop('seasonYear', axis=1)
 
     Y_test_model2 = Y_model2.loc[Y_model2['seasonYear'] == '2024-25']
     Y_test_model2 = Y_test_model2.drop('seasonYear', axis=1)
 
-    X_model2 = model_2_df[[col for col in model_2_df.columns if 'avg' in col]]
-    X_model2 = pd.concat([X_model2, model_2_df['seasonYear']], axis=1)
+    home_dummies = pd.get_dummies(model_2_df['teamTricode'], prefix='team', drop_first=True).astype(float)
+    X_model2 = pd.concat([model_2_df, home_dummies], axis=1)
+    X_model2 = X_model2.drop('ATTENDANCE', axis=1)
 
     X_train_model2 = X_model2.loc[(X_model2['seasonYear'] == '2022-23') | (X_model2['seasonYear'] == '2023-24')]
-    X_train_model2 = X_train_model2.drop('seasonYear', axis=1)
+    X_train_model2 = X_train_model2.select_dtypes(include=['float'])
 
     X_test_model2 = X_model2.loc[X_model2['seasonYear'] == '2024-25']
-    X_test_model2 = X_test_model2.drop('seasonYear', axis=1)
+    X_test_model2 = X_test_model2.select_dtypes(include=['float'])
 
     train_dir = os.path.join(base_dir, subdirs[0])
     test_dir = os.path.join(base_dir, subdirs[1])
