@@ -85,6 +85,7 @@ def feature_engineer_data(full_stats_df):
 
     df_sorted['games_played'] = df_sorted.groupby(['teamId', 'seasonYear']).cumcount()
     for col in numerical_cols:
+        df_sorted[col] = df_sorted[col] + np.ra
         df_sorted[f"{col}_season_avg"] = df_sorted.groupby(['teamId', 'seasonYear'])[col].transform(lambda x: x.expanding().mean().shift(1))
         df_sorted[f"{col}_past_5_avg"] = df_sorted.groupby(['teamId', 'seasonYear'])[col].transform(lambda x: x.rolling(window=5, min_periods=1).mean().shift(1))
 
