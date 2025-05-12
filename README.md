@@ -1,16 +1,16 @@
-# Dynamic NBA Scheduling Using a Competitive Balance Approach
+# NBA Stadium Attendance Prediction Using a Competitive Balance Approach
 
 ### Value Proposition
-We are going to create a win probability model that will be leveraged to dynamically schedule games to optimize viewership and fan engagement. Currently, the NBA creates their schedule in advance, with preset deals with national television networks, as the non-ML approach. In very few cases, the league may “flex” games to change their scheduling, but this is done on an ad-hoc basis, with no clear defined metrics to change the scheduling. The status quo can create a problem during the season in which two teams who are unevenly matched may compete in primetime and nationally televised games, creating a gap in entertainment value. If we are able to capture the win probability of NBA games, we can shuffle the daily schedule to prioritize evenly matched games to be played in primetime and nationally televised scenarios. We will judge ourselves on the ability to drive viewership to primetime games, which we will not realize in this project.
+The goal of this project is to predict NBA stadiums' attendance that will be leveraged to increase audience attendance and to promote more exciting games. Currently, the NBA creates their schedule in advance, with preset deals with national television networks, as the non-ML approach. In very few cases, the league may “flex” games to change their scheduling, but this is done on an ad-hoc basis, with no clear defined metrics to change the scheduling. The status quo can create a problem during the season in which two teams who are unevenly matched may compete in primetime and nationally televised games, creating a gap in entertainment value. If we are able to capture the win probability of NBA games, we can shuffle the daily schedule to prioritize evenly matched games to be played in primetime and nationally televised scenarios. We will judge ourselves on the ability to drive viewership to primetime games, which we will not realize in this project.
 
 ### Contributors
 
 | Name             | Responsible for                                                      | Link to their commits in this repo |
 |------------------|----------------------------------------------------------------------|------------------------------------|
-| All team members | Problem definition, setup, integration, continuous X (Units 1, 2, 3) |               TBD                  |
-| Will Calandra    | Model training (Units 4 + 5)                                         |               TBD                  |
-| Lake Wang        | Model serving and monitoring (Units 6 + 7)                           |               TBD                  |
-| SungJoon Moon       | Data pipeline (Unit 8)                                               |               TBD                  |
+| All team members | Problem definition, setup, integration, continuous X (Units 1, 2, 3) |               [Commits](https://github.com/jasonmoon97/dynamic_nba_scheduling/commits/main/)                  |
+| Will Calandra    | Model training (Units 4 + 5)                                         |               [Commits](https://github.com/jasonmoon97/dynamic_nba_scheduling/commits/main/?author=wcalandra5)                  |
+| Lake Wang        | Model serving and monitoring (Units 6 + 7)                           |               [Commits](https://github.com/jasonmoon97/dynamic_nba_scheduling/commits/main/?author=Lake-Wang)                  |
+| SungJoon Moon       | Data pipeline (Unit 8)                                               |               [Commits](https://github.com/jasonmoon97/dynamic_nba_scheduling/commits/main/?author=jasonmoon97)                  |
 
 
 ### System diagram
@@ -25,6 +25,8 @@ We are going to create a win probability model that will be leveraged to dynamic
 |----------------------------------------------|------------------------------------------------------------------------------|-------------------|
 |[nba_api](https://github.com/swar/nba_api)    | This is an API for nba.com, with the aim to make the NBA APIs easy to use.   | Since we are pitching this to be used by the NBA as an internal tool, we should be in compliance and have consent from the league. This is open source under the MIT License, we must not reproduce these materials for commercial purposes, and we should cite the NBA when using the statistics, as they own them. This is not permissible for gambling or fantasy sports. We will follow the NBA terms of use [Terms of Use](https://www.nba.com/termsofuse#nba-statistics). |
 |[Pytorch](https://github.com/pytorch/pytorch) | This was created by the developers community                                 |    Open source, where generally, as long as we don’t generate or process inappropriate content, we are within the guidelines for use under the Linux Foundation.   |
+|[WeatherAPI.com](https://www.weatherapi.com) | This is a weather data api provider, data provided in partnership with several data providers, government and metreological agencies.                                 |    We have a free trial to collect weather data. We can access, view and make copies of the data in the API for your personal or commercial use. We also credit WeatherAPI.com for providing the latitude and longitude conversion for the NBA stadiums. We follow the [Terms of Use](https://www.weatherapi.com/terms.aspx). |
+|[Open-Meteo](https://open-meteo.com) | This is an open-source weather API that utilizes open-data weather forecasts provided by national weather services.                                  |    Open-meteo offers free access for non-commercial use. The terms of use are 1. less than 10,000 API calls per day, 5,000 per hour and 600 per minute, 2. may only use the free API services for non-commercial purposes, and 3. accept to the CC-BY 4.0 license. [Terms of Use](https://open-meteo.com/en/terms). |
 
 
 ### Summary of infrastructure requirements
