@@ -1,0 +1,24 @@
+name: "model2"
+backend: "onnxruntime"
+max_batch_size: 16
+input [
+  {
+    name: "input"  # Replace with actual input name
+    data_type: TYPE_FP32
+    dims: [40]
+  }
+]
+output [
+  {
+    name: "attendance"
+    data_type: TYPE_FP32
+    dims: [1]
+  }
+]
+instance_group [
+  {
+    count: 1
+    kind: KIND_GPU
+    gpus: [0]
+  }
+]

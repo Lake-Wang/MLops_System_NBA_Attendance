@@ -1,0 +1,45 @@
+name: "nba_model_onnx"
+platform: "ensemble"
+max_batch_size: 16
+input [
+  {
+    name: "input"
+    data_type: TYPE_FP32
+    dims: [192]
+  }
+]
+output [
+  {
+    name: "output"
+    data_type: TYPE_FP32
+    dims: [1]
+  }
+]
+ensemble_scheduling {
+  step [
+    {
+      model_name: "model1"
+      model_version: 1
+      input_map {
+        key: "input"
+        value: "input"
+      }
+      output_map {
+        key: "output"
+        value: "output"
+      }
+    },
+    {
+      model_name: "model2"
+      model_version: 1
+      input_map {
+        key: "input"
+        value: "input"
+      }
+      output_map {
+        key: "output"
+        value: "output"
+      }
+    }
+  ]
+}
