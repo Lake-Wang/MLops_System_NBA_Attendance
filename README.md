@@ -78,11 +78,9 @@ NBA game schedules and TV allocations are often fixed and rarely optimized for f
 
 - **Synthetic Data**:
   - Generated using Gaussian noise and future date shifts
-  - [generate_online.py](./data_engineering/generate_online.py)
 - **Drift Detection**:
   - Implemented with [Alibi Detect](https://github.com/SeldonIO/alibi-detect)
   - Reports confidence scores and alerts
-  - [Notebook](./serving/online_eval/workspace/online_eval.ipynb)
 
 ## 🧱 Infrastructure
 
@@ -102,12 +100,12 @@ NBA game schedules and TV allocations are often fixed and rarely optimized for f
 
 ## 👥 Contributors
 
-| Name            | Focus Area                        | Commits |
-|------------------|-----------------------------------|---------|
-| Will Calandra    | Model training                    | [Link](https://github.com/jasonmoon97/dynamic_nba_scheduling/commits/main/?author=wcalandra5) |
-| Lake Wang        | Model serving, monitoring         | [Link](https://github.com/jasonmoon97/dynamic_nba_scheduling/commits/main/?author=Lake-Wang) |
-| SungJoon Moon    | Data pipeline, infra provisioning | [Link](https://github.com/jasonmoon97/dynamic_nba_scheduling/commits/main/?author=jasonmoon97) |
-| All Members      | Planning, integration, testing    | [Link](https://github.com/jasonmoon97/dynamic_nba_scheduling/commits/main/) |
+| Name            | Focus Area                        |
+|------------------|-----------------------------------|
+| Will Calandra    | Model training                    |
+| Lake Wang        | Model serving, monitoring         |
+| SungJoon Moon    | Data pipeline                     |
+| All Members      | Planning, integration, testing    |
 
 ## 📌 Future Improvements
 
